@@ -16,6 +16,9 @@ dependencies:
   flutter:
     sdk: flutter
   xml: ^3.3.1
+  googleapis: ^0.53.0
+  googleapis_auth: ^0.2.7
+  youtube_api: ^0.5.1
 
 
   # The following adds the Cupertino Icons font to your application.
