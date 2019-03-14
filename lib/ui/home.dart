@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:flutter/cupertino.dart';
 import 'subscriptions.dart';
+import 'channels.dart';
 
 class Home extends StatefulWidget {
   HomeState createState() => new HomeState();
@@ -52,7 +53,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           isScrollable: true,
           indicatorColor: Colors.white,
           labelPadding: EdgeInsets.fromLTRB(50, 0, 50, 0),
-          indicatorPadding: EdgeInsets.fromLTRB(50,0,50,0),
+          indicatorPadding: EdgeInsets.fromLTRB(50, 0, 50, 0),
           indicatorSize: TabBarIndicatorSize.label,
           tabs: <Widget>[
             new Tab(
@@ -71,11 +72,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         controller: tcontrol,
         children: <Widget>[
           new Subscriptions(),
-          new Tab(
-            child: new Center(
-              child: new Text("Channels"),
-            ),
-          ),
+          new Channels(),
           new Tab(
             child: new Center(
               child: new Text("Settings"),
@@ -86,5 +83,4 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
       backgroundColor: Colors.grey[800],
     );
   }
- 
 }
