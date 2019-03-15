@@ -3,12 +3,24 @@ import 'subscriptions.dart';
 import 'package:xml/xml.dart' as xml;
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'dart:convert';
+import 'package:html/parser.dart';
 
 Future<ChannelInfo> getChannelsInfo(MapEntry m) async {
   String url = m.value;
   http.Response response = await http.get(url);
   xml.XmlDocument xtxt = xml.parse(response.body);
-  return ChannelInfo.fromxml(xtxt);
+  http.Response hurl = await http.get(
+      "https://www.googleapis.com/youtube/v3/channels?part=snippet&id=" +
+          xtxt
+              .findAllElements("yt:channelId")
+              .map((node) => node.text)
+              .toList()[0] +
+          "&fields=items%2Fsnippet%2Fthumbnails%2Fdefault&key=AIzaSyC7T23AkwI6HFnQb2q3Q5_iVFFZl6M05So");
+  var rawUrl =
+      hurl.body.replaceAll("\n", " ").replaceAll(new RegExp(r"\s+\b|\b\s"), "");
+  String Url = rawUrl.substring(86, rawUrl.length - 65);
+  return ChannelInfo.fromxml(xtxt, Url);
 }
 
 class ChannelInfo {
@@ -18,25 +30,18 @@ class ChannelInfo {
 
   ChannelInfo({this.ChannelName, this.ChannelUrl, this.ChannelProfileUrl});
 
-  factory ChannelInfo.fromxml(xml.XmlDocument cXml) {
+  factory ChannelInfo.fromxml(xml.XmlDocument cXml, String jsonData) {
     return ChannelInfo(
       ChannelName:
           cXml.findAllElements("title").map((node) => node.text).toList()[0],
       ChannelUrl:
           cXml.findAllElements("uri").map((node) => node.text).toList()[0],
-      ChannelProfileUrl:
-          "https://www.googleapis.com/youtube/v3/channels?part=snippet&id+" +
-              cXml.findAllElements("id").map((node) => node.text).toList()[0] +
-              "&fields=items%2Fsnippet%2Fthumbnails&key={AIzaSyD-_BbDbEAi5HXVOMy10Q1vYcngPNmWhNE}",
+      ChannelProfileUrl: jsonData,
     );
   }
 }
 
 class Channels extends StatelessWidget {
-  final Future<ChannelInfo> channelInfo;
-
-  Channels({Key key, this.channelInfo}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return new ListView.builder(
@@ -47,13 +52,18 @@ class Channels extends StatelessWidget {
             getChannels().keys.toList()[index],
             style: new TextStyle(color: Colors.white),
           ),
-          leading: new CircleAvatar(
-            child: new FutureBuilder(
-              future: getChannelsInfo(getChannels().entries.toList()[index]),
-              builder: (context, snapshot) {
-                return new Image.network(snapshot.data.ChannelProfileUrl);
-              },
-            ),
+          leading: FutureBuilder(
+            future: getChannelsInfo(getChannels().entries.toList()[index]),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return new CircleAvatar(
+                  backgroundImage:
+                      new NetworkImage(snapshot.data.ChannelProfileUrl),
+                );
+              } else {
+                return new CircularProgressIndicator();
+              }
+            },
           ),
         );
       },
