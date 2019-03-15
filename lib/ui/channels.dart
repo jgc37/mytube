@@ -73,7 +73,11 @@ class Channels extends StatelessWidget {
                 getChannels().keys.toList()[index],
                 style: new TextStyle(color: Colors.white),
               ),
-              leading: new CircleAvatar(
+              leading: new FutureBuilder(
+                future: getChannelsInfo(getChannels().entries.toList()[index]),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return new CircleAvatar(
                       backgroundImage:
                           new NetworkImage(ChannelInfo(index).channelProfileUrl),
                     ),
